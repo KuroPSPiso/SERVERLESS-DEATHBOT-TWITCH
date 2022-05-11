@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            html, body{
+                font-family: consolas;
+                font-size: 12pt;
+                background-color: #14171e;
+                overflow-x: hidden;
+                color: wheat;
+                transition: all 1s;
+            }
+
+            code {
+                display: block;
+                white-space: pre;
+                width: fit-content;
+            }
+            
+            h1{
+                color: wheat;
+                font-family: verdana;
+                text-align: center;
+            }
+
+            h2{
+                color: brown;
+                text-align: center;
+            }
+
+            #commands{
+                color: wheat;
+            }
+            
+            .bg-light {
+                background-color: #3c414d;
+            }
+
+            #bans {
+                min-height: 10rem;
+            }
+            
+            .checked::before {
+                content: "V";
+            }
+
+            .pill {
+                color: antiquewhite;
+                float: left;
+                padding: 0.2rem 0.4rem;
+                margin: 0.4rem;
+                border-radius: 0.5rem;
+            }
+            
+            .control-map{
+                margin: 1.5rem auto;
+                width: max-content;
+                display: flex;
+            }
+            
+            .button{
+                border: 0.2rem solid brown;
+                padding: 0.3rem 0.8rem;
+                border-radius: 0.3rem;
+                color: #FFE300;
+                text-decoration: none;
+                cursor: pointer;
+                background-color: #000;
+                font-weight: 600;
+                margin: 0 0.1rem;
+            }
+            
+            .button:hover{
+                border-color: #FFF;
+                color: #FFF;
+            }
+
+            .role{
+                background-image: url("./sword.png");
+                padding: 0 0.6rem;
+                border-radius: 0.2rem;
+                background-size: contain;
+                background-repeat: no-repeat;
+                background-position: center;
+            }
+            
+            .hidden{
+                display: none !important;
+            }
+
+            #messages{
+                background-color: #14171e;
+                color: whitesmoke;
+                font-size: 0.66em;
+            }
+            
+            #status{
+                padding: 0.5rem;
+            }
+            
+            input[type=text]  {
+                font-weight: 300;
+                font-family: verdana;
+                color: white;
+                border: 0.1rem solid wheat;
+                border-radius: 0.2rem;
+                padding: 0.3rem;
+                text-align: center !important;
+            }
+            input[type=checkbox]  {
+                color: #3c414d;
+            }
+            input {
+                accent-color: wheat;
+                background-color: #3c414d;
+            }
+            
+            #settings{
+                display:grid;
+                grid-template-columns: max-content auto;
+                grid-gap: 0.2rem 0.5rem;
+            }
+            
+            #settings input[type=checkbox] { max-width: fit-content; }
+            #settings input[type=text] { max-width: 30rem; }
+            #settings input[type=range] { max-width: 30rem; }
+            #settings select { max-width: 30rem; }
+            #settings .subsetting { 
+                max-width: 30rem;
+                display: grid;
+                grid-template-columns: auto max-content max-content;
+                grid-gap: 0.2rem;
+            }
+            #settings .subsetting span {
+                line-height: 2rem;
+            }
+            
+            #settings label       { text-align:right; }
+            #settings label:after { content: ":"; }
+            
+            #memoriam-message-part::after{
+                content: "Viewer1, Viewer2..."
+            }
+            
+            .emote-pickers{
+                display: table-cell;
+                background-color: #FFF;
+                border-radius: 1rem;
+                padding: 2rem;
+                border: solid 1px #fff;
+                color: wheat;
+                text-align: center;
+            }
+            
+            #emote-group{
+                display: table;
+                left: 0;
+                right: 0;
+                top: 0;
+                bottom: 0;
+                position: absolute;
+                height: 100vh;
+                width: 100vw;
+                opacity: 0.9;
+                border-collapse: separate;
+                border-spacing: 5rem;
+            }
+            
+            #emote-group-deselector{
+                left: 0;
+                right: 0;
+                top: 0;
+                bottom: 0;
+                position: fixed;
+                height: 100vh;
+                width: 100vw;
+                opacity: 0.8;
+                background-color: black;
+                z-index: -1;
+            }
+            
+            #emote-group-deselector-box{
+                color: wheat;
+                position: fixed;top: 0;left: 0;right: 0;text-align: center;background-color: black;padding: 1rem;margin: auto;
+            }
+            
+            .emote-node{
+                display: inline-flex;
+                background-color: #14171e;
+                border-radius: 1rem;
+                padding: 1rem;
+                outline: solid 0.15rem #fff;
+                color: wheat;
+                margin: 0.5rem;
+            }
+            .emote-node img{
+                margin-right: 0.5rem;
+            }
+            
+            .emote-node:hover{
+                outline-color: #1743ac;
+                outline-width: 0.4rem;
+            }
+            
+            article{
+                background-color: #14171e;
+                margin: 1rem;
+                padding: 1rem;
+                white-space: pre-line;
+            }
+            
+            .line {
+                height: 0.1rem;
+                background-color: black;
+            }
+            
+            .control-menu-item{
+                padding: 1rem;
+                border: solid;
+                border-radius: 0.5rem;
+            }
+            
+            #info {
+                text-align: center;
+                background-color: #14171e;
+                border-radius: 0.2rem;
+                padding: 0.5rem;
+                max-width: 25rem;
+                margin: auto;
+            }
+        </style>
+        <script src="scripts/tmi.min.js"></script> 
+        <script src="scripts/jquery.min.js"></script>
+        <script type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div id="emote-group">
+            <article id="emote-group-deselector-box">click outside window to close.</article>
+            <div id="emote-group-deselector"></div>
+            <div class="emote-pickers">
+                <h2>Select timeout message emote</h2>
+                <!--<a class="button" style="top:1rem;left: 49%;position: relative;">Cancel</a>-->
+                <h3>Twitch</h3>
+                <div id="emote-picker-twitch">
+                    
+                </div>
+                
+                <h3>BTTV (host channel)</h3>
+                <div id="emote-picker-bttv-channel" style="content: 'nothing'">
+                    
+                </div>
+                
+                <h3>BTTV (global)</h3>
+                <div id="emote-picker-bttv-global">
+                    
+                </div>
+                <!--<a class="button" style="top:1rem;left: 49%;position: relative;">Cancel</a>-->
+            </div>
+        </div>
+        <h1>Ban 'M</h1>
+        <h2>Commands</h2>
+        <div id="commands" class="bg-light">
+            <code>
+                !b [amount of users]        | 5min ban          | Usable by streamer
+                !b [amount of users] [time] | timable ban       | Usable by streamer
+                !memoriam                   | report of bans    | Usable by mods and streamer
+            </code>
+            
+        </div>
+        <h2>Settings</h2>
+        <div class="bg-light" style="padding: 1rem;">
+            <div class="control-menu-item">
+                <article>
+                    Fields can be left empty if desired.
+                    
+                    Group timeout message emote has a OPTIONAL selection list, you can manually enter any valid emote name.
+                    
+                    TTS voice, the selection needs to be set manually after each refresh, persistence for this cannot be guaranteed.
+                </article>
+                <div id="settings">
+                    <!--Rights-->
+                    <h4>Rights</h4><div></div>
+                    <label for="allow-mods">Allow mods to use mod commands</label>
+                    <input type="checkbox" id="allow-mods" name="allow-mods"/>
+                    
+                    <!--TSS-->
+                    <h4>Text to speech settings</h4><div></div>
+                    <label for="tts">Text to speech alerts</label>
+                    <input type="checkbox" id="tts" name="tts"/>
+                    <label for="tts-voices">TTS voice</label>
+                    <select id="tts-voices" name="tts-voices">
+                        <option value="default">System default</option>
+                    </select>
+                    <label for="tts-pitch">TTS pitch</label>
+                    <div class="subsetting">
+                        <input type="range" id="tts-pitch" name="tts-pitch" min="0" max="2" value="1" step="0.1">
+                        <span id="tts-pitch-value"></span>
+                    </div>
+                    <label for="tts-rate">TTS rate (speed)</label>
+                    <div class="subsetting">
+                        <input type="range" id="tts-rate" name="tts-rate" min="0" max="2" value="1" step="0.1">
+                        <span id="tts-rate-value"></span>
+                    </div>
+                    <label for="tts-volume">TTS volume</label>
+                    <div class="subsetting">
+                        <input type="range" id="tts-volume" name="tts-volume" min="0" max="1" value="0.5" step="0.1">
+                        <span id="tts-volume-value"></span>
+                        <a class="button" id="testTTSVolumeBtn" href="javascript:void(0)">Test</a>
+                    </div>
+                    
+                    <!--Timeout details-->
+                    <h4>Timeout settings</h4><div></div>
+                    <label for="group-timeout-clip">Group timeout audio clip</label>
+                    <input type="text" id="group-timeout-clip" name="group-timeout-clip" placeholder="WAV/MP3 URL"/>
+                    <label for="group-timeout-volume">Group timeout audio volume</label>
+                    <div class="subsetting">
+                        <input type="range" id="group-timeout-volume" name="group-timeout-volume" min="0" max="1" value="0.5" step="0.1">
+                        <span id="group-timeout-volume-value"></span>
+                        <a class="button" id="testTimeoutVolumeBtn" href="javascript:void(0)">Test</a>
+                    </div>
+                    <label for="group-timeout-message-emote">Group timeout message emote</label>
+                    <div class="subsetting">
+                        <input type="text" id="group-timeout-message-emote" name="group-timeout-message-emote" placeholder="Kappa"/>
+                        <a class="button" id="clearEmoteBtn" href="javascript:void(0)">Clear</a>
+                        <a class="button" id="showEmoteGroupBtn" href="javascript:void(0)">Select from list</a>
+                    </div>
+                    <label for="group-timeout-message-part">Group timeout message</label>
+                    <input type="text" id="group-timeout-message-part" name="group-timeout-message-part" placeholder="We say farewell to:"/>
+                    <label for="timeout-message-part">Timeout message</label>
+                    <input type="text" id="timeout-message-part" name="timeout-message-part" placeholder="you were randomly selected for execution"/>
+                    <label for="memoriam-message-part">Memoriam message</label>
+                    <input type="text" id="memoriam-message-part" name="memoriam-message-part" placeholder="We said goodbye to:"/>
+                </div>
+            </div>
+            <h3>Controls</h3>
+                <div class="control-menu-item">
+                    <div class="control-map">
+                        <a class="button" id="clearBanList" href="javascript:void(0)">Clear ban list</a>
+                        <a class="button float-left" id="unbanAllBtn" href="javascript:void(0)">Unban all</a>
+                        <a class="button float-left" id="memoriamBtn" href="javascript:void(0)">Memoriam</a>
+                    </div>
+                    <div class="control-map">
+                        <a class="button" id="timeout1Btn" href="javascript:void(0)">Timeout 1 (5 min)</a>
+                        <a class="button float-left" id="timeout5Btn" href="javascript:void(0)">Timeout 5 (5 min)</a>
+                        <a class="button float-left" id="timeout25Btn" href="javascript:void(0)">Timeout 25 (5 min)</a>
+                        <a class="button float-left" id="timeout100Btn" href="javascript:void(0)">Timeout 100 (5 min)</a>
+                    </div>
+                </div>
+            <h3>Status</h3>
+            <div class="control-menu-item">
+                <p id="info"></p>
+            </div>
+        </div>
+        <h2>Banned folk</h2>
+        <div id="bans" class="bg-light"></div>
+        <h2>Chat</h2>
+        <div id="messages" class="control-menu-item"></div>
+
+        </div>
+        <script>
+            jQuery(document).ready(function($){
+            const urlParams = new URLSearchParams(window.location.search);
+            const OAUTH_PART = urlParams.get('oauthpart');
+            const CHANNEL = urlParams.get('channel');
+            const CHANNEL_NAME = '#' + CHANNEL;
+            const OAUTH_TOKEN = 'oauth:' + OAUTH_PART;
+            const BOT_USERNAME = 'dev';
+            const CLIENT_ID = 'cj1jcxg4kgv41it2m4qe01wdhk6k4s';
+            const AUTH = 'Bearer ' + urlParams.get('bearer')
+
+            const messages = []
+            const messagesBox = document.getElementById("messages");
+            const bansBox = document.getElementById("bans");
+            const info = document.getElementById("info");
+
+            const userMap = new Map(); //(to be) banned user list
+            var numberList = []; //all users based on index in current tree not yet banned
+            var mergeIndexList = []; //to be banned
+            var channelID = "";
+            const groupTimeoutVolumeValue = this.getElementById('group-timeout-volume-value');
+            
+            //tts
+            var hasSpeech = false;
+            var voices;
+            var clip;
+            const ttsVolumeValue = this.getElementById('tts-volume-value');
+            const ttsPitchValue = this.getElementById('tts-pitch-value');
+            const ttsRateValue = this.getElementById('tts-rate-value');
+            
+            //emote selection
+            const emoteMap = new Map();
+            const emoteGroup = document.getElementById("emote-group");
+            emoteGroup.classList.add("hidden")
+            const emoteGroupDeselector = document.getElementById("emote-group-deselector");
+            const emoteGroupDeselectorBox = document.getElementById("emote-group-deselector-box");
+            const emotePickerTwitch = document.getElementById("emote-picker-twitch");
+            emotePickerTwitch.innerHTML = "Not loaded (missing bearer)";
+            const emotePickerBTTVChannel = document.getElementById("emote-picker-bttv-channel");
+            emotePickerBTTVChannel.innerHTML = "Not loaded (missing bearer)";
+            const emotePickerBTTVGlobal = document.getElementById("emote-picker-bttv-global");
+            emotePickerBTTVGlobal.innerHTML = "Not loaded";
+            
+            function hideEmoteGroup()
+            {
+                emoteGroup.classList.add("hidden")
+            }
+            
+            function selectEmote()
+            {
+                hideEmoteGroup();
+            }
+            
+            emoteGroupDeselector.addEventListener('click', (event) =>{
+                hideEmoteGroup();
+            });
+            emoteGroupDeselectorBox.addEventListener('click', (event) =>{
+                hideEmoteGroup();
+            });
+            
+            //INPUT--
+            function disableElement(element)
+            {
+                //element.classList.add("hidden");
+                element.disabled = true;
+            }
+            
+            //Inputfield
+            var groupTimeoutClipInput= document.getElementById('group-timeout-clip');
+            var groupTimeoutMessageEmoteInput = document.getElementById('group-timeout-message-emote');
+            var groupTimeoutMessagePartInput = document.getElementById('group-timeout-message-part');
+            var timeoutMessagePartInput = document.getElementById('timeout-message-part');
+            var memoriamMessagePartInput = document.getElementById('memoriam-message-part');
+            //IF params
+            var groupTimeoutClip = "https://www.myinstants.com/media/sounds/sad-violin_ubqugrt_HkxJKK5.mp3"
+            var groupTimeoutMessageEmote = "Kappa"
+            var groupTimeoutMessagePart = "We say farewell to:"
+            var timeoutMessagePart = "you were randomly selected for execution"
+            var memoriamMessagePart = "We said goodbye to"
+            //IF Localstorage
+            if (window.localStorage.groupTimeoutClip !== null){
+                if(typeof window.localStorage.groupTimeoutClip !== "undefined"){
+                    groupTimeoutClip = window.localStorage.groupTimeoutClip;
+                }
+            }
+            if (window.localStorage.groupTimeoutMessageEmote !== null){
+                if(typeof window.localStorage.groupTimeoutMessageEmote !== "undefined"){
+                    groupTimeoutMessageEmote = window.localStorage.groupTimeoutMessageEmote;
+                }
+            }
+            if (window.localStorage.groupTimeoutMessagePart !== null){
+                if(typeof window.localStorage.groupTimeoutMessagePart !== "undefined"){
+                    groupTimeoutMessagePart = window.localStorage.groupTimeoutMessagePart;
+                }
+            }
+            if (window.localStorage.timeoutMessagePart !== null){
+                if(typeof window.localStorage.timeoutMessagePart !== "undefined"){
+                    timeoutMessagePart = window.localStorage.timeoutMessagePart;
+                }
+            }
+            if (window.localStorage.memoriamMessagePart !== null){
+                if(typeof window.localStorage.memoriamMessagePart !== "undefined"){
+                    memoriamMessagePart = window.localStorage.memoriamMessagePart;
+                }
+            }
+            //IF Helper methods
+            function setValueInputfield(inputField, value)
+            {
+                console.log(`${inputField.id}, ${value}`);
+                inputField.value = value;
+            }
+            //IF Change func
+            groupTimeoutClipInput.addEventListener('keyup', (event) =>{
+                groupTimeoutClip = groupTimeoutClipInput.value;
+                window.localStorage.setItem('groupTimeoutClip', groupTimeoutClip)
+                console.log(`groupTimeoutClip: ${window.localStorage.groupTimeoutClip}`)
+            })
+            groupTimeoutMessageEmoteInput.addEventListener('keyup', (event) =>{
+                groupTimeoutMessageEmote = groupTimeoutMessageEmoteInput.value;
+                window.localStorage.setItem('groupTimeoutMessageEmote', groupTimeoutMessageEmote)
+                console.log(`groupTimeoutMessageEmote: ${window.localStorage.groupTimeoutMessageEmote}`)
+            })
+            groupTimeoutMessagePartInput.addEventListener('keyup', (event) =>{
+                groupTimeoutMessagePart = groupTimeoutMessagePartInput.value;
+                window.localStorage.setItem('groupTimeoutMessagePart', groupTimeoutMessagePart)
+                console.log(`groupTimeoutMessagePart: ${window.localStorage.groupTimeoutMessagePart}`)
+            })
+            timeoutMessagePartInput.addEventListener('keyup', (event) =>{
+                timeoutMessagePart = timeoutMessagePartInput.value;
+                window.localStorage.setItem('timeoutMessagePart', timeoutMessagePart)
+                console.log(`timeoutMessagePart: ${window.localStorage.timeoutMessagePart}`)
+            })
+            memoriamMessagePartInput.addEventListener('keyup', (event) =>{
+                memoriamMessagePart = memoriamMessagePartInput.value;
+                window.localStorage.setItem('memoriamMessagePart', memoriamMessagePart)
+                console.log(`memoriamMessage: ${window.localStorage.memoriamMessagePart}`)
+            })
+            //IF Init
+            setValueInputfield(groupTimeoutClipInput, groupTimeoutClip);
+            setValueInputfield(groupTimeoutMessageEmoteInput, groupTimeoutMessageEmote);
+            setValueInputfield(groupTimeoutMessagePartInput, groupTimeoutMessagePart);
+            setValueInputfield(timeoutMessagePartInput, timeoutMessagePart);
+            setValueInputfield(memoriamMessagePartInput, memoriamMessagePart);
+            
+            function setEmoteFromSelection(value)
+            {
+                groupTimeoutMessageEmote = value;
+                window.localStorage.setItem('groupTimeoutMessageEmote', groupTimeoutMessageEmote)
+                console.log(`groupTimeoutMessageEmote: ${window.localStorage.groupTimeoutMessageEmote}`)
+                groupTimeoutMessageEmoteInput.value = groupTimeoutMessageEmote;
+            }
+            
+            //Checkboxes
+            const ttsCBox = document.getElementById("tts");
+            const allowModsCBox = document.getElementById("allow-mods");
+            //CB params
+            var speechEnabled = true;
+            var allowMods = false;
+            //CB LocalStorage
+            if (window.localStorage.useTTS !== null){
+                if(typeof window.localStorage.useTTS !== "undefined"){
+                    speechEnabled = (window.localStorage.useTTS === 'true')? true : false;
+                }
+            }
+            if (window.localStorage.allowMods !== null){
+                if(typeof window.localStorage.allowMods !== "undefined"){
+                    allowMods = (window.localStorage.allowMods === 'true')? true : false;
+                }
+            }
+            //CB Helper methods
+            function checkStateCheckBox(cbox, state)
+            {
+                cbox.checked = state;
+            }
+            //CB Click func
+            ttsCBox.addEventListener('click', (event) =>{
+                speechEnabled = !speechEnabled;
+                checkStateCheckBox(ttsCBox, speechEnabled);
+                window.localStorage.setItem('useTTS', speechEnabled)
+                console.log(`tts: ${window.localStorage.useTTS}`)
+            })
+            allowModsCBox.addEventListener('click', (event) =>{
+                allowMods = !allowMods;
+                checkStateCheckBox(allowModsCBox, allowMods);
+                window.localStorage.setItem('allowMods', allowMods)
+                console.log(`tts: ${window.localStorage.allowMods}`)
+            })
+            //CB Init
+            checkStateCheckBox(ttsCBox, speechEnabled);
+            checkStateCheckBox(allowModsCBox, allowMods);
+
+            //Ranges/sliders
+            const ttsVolumeInput = document.getElementById("tts-volume");
+            const ttsPitchInput = document.getElementById("tts-pitch");
+            const ttsRateInput = document.getElementById("tts-rate");
+            const groupTimeoutVolumeInput = document.getElementById("group-timeout-volume");
+            //R params
+            var ttsVolume = 0.5;
+            var ttsPitch = 1;
+            var ttsRate = 1;
+            var groupTimeoutVolume = 0.5;
+            //R LocalStorage
+            if (window.localStorage.ttsVolume !== null){
+                if(typeof window.localStorage.ttsVolume !== "undefined"){
+                    ttsVolume = window.localStorage.ttsVolume
+                }
+            }
+            if (window.localStorage.ttsPitch !== null){
+                if(typeof window.localStorage.ttsPitch !== "undefined"){
+                    ttsPitch = window.localStorage.ttsPitch
+                }
+            }
+            if (window.localStorage.ttsRate !== null){
+                if(typeof window.localStorage.ttsRate !== "undefined"){
+                    ttsRate = window.localStorage.ttsRate
+                }
+            }
+            if (window.localStorage.groupTimeoutVolume !== null){
+                if(typeof window.localStorage.groupTimeoutVolume !== "undefined"){
+                    groupTimeoutVolume = window.localStorage.groupTimeoutVolume
+                }
+            }
+            //R Helper methods
+            //R Change func
+            ttsVolumeInput.addEventListener('change', (event) =>{
+                ttsVolume = parseFloat(ttsVolumeInput.value).toFixed(1);
+                window.localStorage.setItem('ttsVolume', ttsVolume)
+                ttsVolumeValue.innerHTML = ttsVolume;
+            })
+            ttsPitchInput.addEventListener('change', (event) =>{
+                ttsPitch = parseFloat(ttsPitchInput.value).toFixed(1);
+                window.localStorage.setItem('ttsPitch', ttsPitch)
+                ttsPitchValue.innerHTML = ttsPitch;
+            })
+            ttsRateInput.addEventListener('change', (event) =>{
+                ttsRate = parseFloat(ttsRateInput.value).toFixed(1);
+                window.localStorage.setItem('ttsRate', ttsRate)
+                ttsRateValue.innerHTML = ttsRate;
+            })
+            groupTimeoutVolumeInput.addEventListener('change', (event) =>{
+                groupTimeoutVolume = parseFloat(groupTimeoutVolumeInput.value).toFixed(1);
+                window.localStorage.setItem('groupTimeoutVolume', groupTimeoutVolume)
+                groupTimeoutVolumeValue.innerHTML = groupTimeoutVolume;
+            })
+            //R input func
+            ttsVolumeInput.addEventListener('input', (event) =>{
+                ttsVolumeValue.innerHTML = parseFloat(ttsVolumeInput.value).toFixed(1);
+            })
+            ttsPitchInput.addEventListener('input', (event) =>{
+                ttsPitchValue.innerHTML = parseFloat(ttsPitchInput.value).toFixed(1);
+            })
+            ttsRateInput.addEventListener('input', (event) =>{
+                ttsRateValue.innerHTML = parseFloat(ttsRateInput.value).toFixed(1);
+            })
+            groupTimeoutVolumeInput.addEventListener('input', (event) =>{
+                groupTimeoutVolumeValue.innerHTML = parseFloat(groupTimeoutVolumeInput.value).toFixed(1);
+            })
+            //R Init
+            setValueInputfield(ttsVolumeInput, ttsVolume);
+            setValueInputfield(ttsPitchInput, ttsPitch);
+            setValueInputfield(ttsRateInput, ttsRate);
+            setValueInputfield(groupTimeoutVolumeInput, groupTimeoutVolume);
+            ttsPitchValue.innerHTML = ttsPitch;
+            ttsRateValue.innerHTML = ttsRate;
+            ttsVolumeValue.innerHTML = ttsVolume;
+            groupTimeoutVolumeValue.innerHTML = groupTimeoutVolume;
+
+            //Check speech support and enable or disable CB and functionality
+            if ('speechSynthesis' in window) {
+                hasSpeech = true;
+            }else{
+                console.log("Speech Synthesis Not Supported");
+                disableElement(ttsCBox);
+            }
+            
+            //Selectors
+            const ttsVoicesInput = document.getElementById("tts-voices");
+            //S params
+            var ttsVoice = "default";
+            //S LocalStorage
+            //S Helper methods
+            //S Change func
+            ttsVoicesInput.addEventListener('change', (event) =>{
+                ttsVoice = ttsVoicesInput.value;
+            })
+            //S Init
+
+            //Check speech support and enable or disable CB and functionality
+            if ('speechSynthesis' in window) {
+                hasSpeech = true;
+                var synth = window.speechSynthesis;
+                voices = synth.getVoices();
+                const voiceArr = Array.from(voices);
+                voiceArr.forEach(voice => {
+                    ttsVoicesInput.innerHTML += `<option value="${voice.name}">${voice.name}</option>`;
+                });
+            }else{
+                console.log("Speech Synthesis Not Supported");
+                disableElement(ttsCBox);
+            }
+            
+            //Additional API integration
+            if(AUTH !== null)
+            {
+                if(typeof AUTH !== "undefined")
+                {
+                    fetch(
+                        `https://api.twitch.tv/helix/users?login=${CHANNEL}`,
+                        {  
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Client-ID': CLIENT_ID,
+                                'Authorization': AUTH
+                            }
+                        }
+                    )
+                    .then(response => response.json())
+                    .then(data => {
+                        //get channel id
+                        channelID = data.data[0].id;
+                        console.log("Channel id: " + channelID);
+                        
+                        //get channel emotes
+                        fetch(
+                            `https://api.twitch.tv/helix/chat/emotes?broadcaster_id=${channelID}`,
+                            {  
+                                method: 'GET',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Client-ID': CLIENT_ID,
+                                    'Authorization': AUTH
+                                }
+                            }
+                        )
+                        .then(response => response.json())
+                        .then(data => {
+                            const emoteArr = Array.from(data.data);
+                            console.log(data);
+                            emotePickerTwitch.innerHTML = "";
+                            emoteArr.forEach(emote => {
+                                emoteMap.set(emote.name, emote.images.url_1x); //name | imgUrl
+                                emotePickerTwitch.innerHTML += `<p id="emote-selection" class="emote-node" emote="${emote.name}"><img src="${emote.images.url_1x}"/> ${emote.name}</p>`; //todo: select emote
+                            })
+                            if(emotePickerTwitch.innerHTML === "")
+                            {
+                                emotePickerTwitch.innerHTML = "not set/found"
+                            }
+                            
+                            console.log(`https://api.betterttv.net/3/cached/users/twitch/${channelID}`);
+                            
+                            //getBBTVIcons
+                            fetch(
+                                `https://api.betterttv.net/3/cached/users/twitch/${channelID}`,
+                                {  
+                                    method: 'GET'
+                                }
+                            )
+                            .then(response => response.json())
+                            .then(data => {
+                                const emoteArr = Array.from(data.channelEmotes);
+                                const sharedArr = Array.from(data.sharedEmotes);
+                                
+                                sharedArr.forEach(emote => {
+                                    emoteArr.push(emote);
+                                })
+                                
+                                emotePickerBTTVChannel.innerHTML = "";
+                                emoteArr.forEach(emote => {
+                                    emoteMap.set(emote.code, `https://cdn.betterttv.net/emote/${emote.id}/1x`); //name | imgUrl
+                                    emotePickerBTTVChannel.innerHTML += `<p id="emote-selection" class="emote-node" emote="${emote.code}"><img src="https://cdn.betterttv.net/emote/${emote.id}/1x"/> ${emote.code}</p>`; //todo: select emote
+                                })
+                                if(emotePickerBTTVChannel.innerHTML === "")
+                                {
+                                    emotePickerBTTVChannel.innerHTML = "not set/found"
+                                }
+                            })
+                        })
+                    })
+                }
+            }
+            
+            //get BTTV Emotes
+            fetch(
+                `https://api.betterttv.net/3/cached/emotes/global`,
+                {  
+                    method: 'GET'
+                }
+            )
+            .then(response => response.json())
+            .then(data => {
+                const emoteArr = Array.from(data);
+                emotePickerBTTVGlobal.innerHTML = "";
+                emoteArr.forEach(emote => {
+                    emoteMap.set(emote.code, `https://cdn.betterttv.net/emote/${emote.id}/1x`); //name | imgUrl
+                    emotePickerBTTVGlobal.innerHTML += `<p id="emote-selection" class="emote-node" emote="${emote.code}"><img src="https://cdn.betterttv.net/emote/${emote.id}/1x"/> ${emote.code}</p>`; //todo: select emote
+                })
+                if(emotePickerBTTVGlobal.innerHTML === "")
+                {
+                    emotePickerBTTVGlobal.innerHTML = "not set/found"
+                }
+            })
+
+            //Chatbot setup
+            const options = {
+                options: { debug: true },
+                connection: {
+                reconnect: true,
+                secure: true,
+                timeout: 180000,
+                reconnectDecay: 1.4,
+                reconnectInterval: 1000,
+                },
+                identity: {
+                    username: BOT_USERNAME,
+                    password: OAUTH_TOKEN
+                },
+                channels: [ CHANNEL_NAME ]
+            }
+
+            //Chatbot connection
+            const client = new tmi.Client(options)
+            console.log('bot started')
+            client.connect()
+                .then(() =>{
+                    info.innerHTML = `Connected to ${CHANNEL}`
+                })
+                .catch(console.error);
+            
+            //Chatbot functions
+            var collectBannedUsers = function(){
+                var usernames = "";
+                const unArr = Array.from(userMap.values());
+                unArr.forEach(un => {
+                    var r = rollDice(50);
+                    var g = rollDice(50);
+                    var b = rollDice(50);
+                    usernames += `<span class="pill" style="background-color:rgb(${r}, ${g}, ${b})">${un}</span>`
+                })
+                bansBox.innerHTML = usernames;
+            }
+
+            var addMessage = function(msg){
+                var h = new Date().getHours();
+                var m = new Date().getMinutes();
+                h = (h<10) ? '0' + h : h;
+                m = (m<10) ? '0' + m : m;
+                var output = h + ':' + m;
+                
+                messages.unshift(`${output} ${msg}`)
+                //messages.push(msg);
+                if(messages.length >= 20){
+                    messages.pop();
+                    //messages.splice(0, 1);
+                }
+
+                var chatMsgs = "";
+                messages.forEach(chatMsg => {
+                    chatMsgs += `<p>${chatMsg}</p>`
+                })
+
+                messagesBox.innerHTML = chatMsgs;
+            }
+            
+            //// Rand func
+            function rollDice (sides) {
+                return Math.floor(Math.random() * sides) + 1;
+            }
+
+            function compileIndex(noToKill, _debug)
+            {
+                noToKill--
+                console.log(noToKill)
+
+                var numberListIndex = rollDice(numberList.length) - 1
+                console.log(numberListIndex)
+                var randoNo = numberList[numberListIndex]
+                
+                if(!_debug)
+                {
+                    numberList.splice(numberListIndex, 1)
+                    mergeIndexList.push(randoNo);
+                }
+
+                if(noToKill <= 0) return
+                compileIndex(noToKill, _debug)
+            }
+
+            function updateIFrame(){
+                chatSrc.src = chatSrc.src + '';
+            }
+            
+            //// generate userlist to timeout/ban
+            function compileUsers(channel, tags, no, _timeoutTime=300, _debug = false, _attemptCount = 0) {
+                var settings = {
+                    'cache': false,
+                    "async": true,
+                    "crossDomain": true,
+                    "url": `https://tmi.vitaports.com/chatters.php?channel=${CHANNEL}`,
+                    "method": "GET",
+                    "headers": {
+                        "accept": "application/json",
+                        "Access-Control-Allow-Origin":"*"
+                    }
+                }
+
+                $.ajax(settings).done(function (response) {
+                    var data = JSON.parse(response);
+
+                    var broadcaster = data.chatters.broadcaster
+                    var viewers = data.chatters.viewers
+                    var vips = data.chatters.vips
+                    var mods = data.chatters.moderators
+
+                    //combine users and remove those already banned once
+                    var merge = []
+                    vips.forEach(vip => {
+                        if(!userMap.has(vip)) merge.push(vip)
+                    });
+                    /*mods.forEach(mod => {
+                        if(!userMap.has(mod)) merge.push(mod)
+                    });*/
+                    viewers.forEach(viewer => {
+                        if(!userMap.has(viewer)) merge.push(viewer)
+                    });
+
+                    //clean slate
+                    numberList = []
+                    mergeIndexList = []
+
+                    //add numbers to list
+                    for(var i = 0; i < merge.length; i++)
+                    {
+                        numberList.push(i);
+                    }
+                    
+                    //execute ban protocol
+                    var noToKill = parseInt(no.replace("undefined", "")); //weird glitch where string adds undefined infront of number
+                    
+                    if(noToKill > merge.length) noToKill = merge.length;
+                    console.log(`number to ban ${noToKill}`);
+                    console.log(merge);
+
+                    compileIndex(noToKill, _debug)
+
+                    if(!_debug)
+                    {
+                        console.log(mergeIndexList)
+                        
+                        const newlyBannedUsernames = []
+
+                        mergeIndexList.forEach(index => {
+                            console.log(`${index}: ${merge[index]} will be banned`)
+                            userMap.set(merge[index], merge[index]);
+                            client.timeout(channel, merge[index], _timeoutTime, `${merge[index]} ${timeoutMessagePart}`)
+                            //client.say(channel, `Crashge ${merge[index]} you let Crash man in. Crashge`)
+                            newlyBannedUsernames.push(merge[index])
+                        });
+                        
+                        if(newlyBannedUsernames !== undefined)
+                        {
+                            if(newlyBannedUsernames.length > 0)
+                            {
+                                if(groupTimeoutClip !== null)
+                                {
+                                    if(typeof groupTimeoutClip !== "undefined")
+                                    {
+                                        if(clip !== null)
+                                        {
+                                            if(typeof clip !== "undefined")
+                                            {
+                                                clip.pause();
+                                                clip.currentTime = 0;
+                                            }
+                                        }
+                                        clip = new Audio(groupTimeoutClip);
+                                        clip.volume = groupTimeoutVolume;
+                                        clip.play();
+                                    }
+                                }
+                                var warningMessage = `${groupTimeoutMessagePart} ${newlyBannedUsernames}`;
+                                warningMessage = warningMessage.replaceAll(',', ', ');
+                                client.say(channel, `${groupTimeoutMessageEmote} ${warningMessage} ${groupTimeoutMessageEmote}`);
+                                //warningMessage = warningMessage.replaceAll(',', ' ');
+                                if(hasSpeech && speechEnabled)
+                                {
+                                    console.log("speech attempt");
+                                    var speechMsg = new SpeechSynthesisUtterance();
+                                    speechMsg.text = warningMessage;
+                                    speechMsg.volume = ttsVolume;
+                                    speechMsg.pitch = ttsPitch;
+                                    speechMsg.rate = ttsRate;
+                                    if(ttsVoice !== "default")
+                                    {
+                                        for(i = 0; i < voices.length ; i++) {
+                                            if(voices[i].name === ttsVoice) {
+                                                speechMsg.voice = voices[i];
+                                            }
+                                        }
+                                    }
+                                    window.speechSynthesis.speak(speechMsg);
+                                }
+                            }
+                        }
+                    }
+                    collectBannedUsers();
+
+                }).fail(() => {
+                    if(_attemptCount < 3) {
+                        return compileUsers(channel, tags, no, _timeoutTime, _debug, _attemptCount + 1);
+                    }
+                });
+            }
+            
+            //buttons
+            const clearEmoteBtn = document.getElementById('clearEmoteBtn');
+            const showEmoteGroupBtn = document.getElementById('showEmoteGroupBtn');
+            const memoriamBtn = document.getElementById('memoriamBtn');
+            const timeout1Btn = document.getElementById('timeout1Btn');
+            const timeout5Btn = document.getElementById('timeout5Btn');
+            const timeout25Btn = document.getElementById('timeout25Btn');
+            const timeout100Btn = document.getElementById('timeout100Btn');
+            const unbanAllBtn = document.getElementById('unbanAllBtn');
+            const clearBanList = document.getElementById('clearBanList');
+            const testTimeoutVolumeBtn = document.getElementById('testTimeoutVolumeBtn');
+            const testTTSVolumeBtn = document.getElementById('testTTSVolumeBtn');
+            
+            document.addEventListener('click',function(e){
+                if(e.target && e.target.id== 'emote-selection'){
+                    setEmoteFromSelection(e.target.attributes['emote'].value)
+                    hideEmoteGroup();
+                }
+            });
+            clearEmoteBtn.addEventListener('click', (event) => {
+                setEmoteFromSelection('');
+            })
+            showEmoteGroupBtn.addEventListener('click', (event) => {
+                emoteGroup.classList.remove("hidden")
+            })
+            memoriamBtn.addEventListener('click', (event) =>{
+                if(client.readyState() === "OPEN")
+                {
+                    execMemoriam(CHANNEL)
+                }
+            })
+            timeout1Btn.addEventListener('click', (event) =>{
+                if(client.readyState() === "OPEN")
+                {
+                    sayTimeout(CHANNEL, 1, 300)
+                }
+            })
+            timeout5Btn.addEventListener('click', (event) =>{
+                if(client.readyState() === "OPEN")
+                {
+                    sayTimeout(CHANNEL, 5, 300)
+                }
+            })
+            timeout25Btn.addEventListener('click', (event) =>{
+                if(client.readyState() === "OPEN")
+                {
+                    sayTimeout(CHANNEL, 25, 300)
+                }
+            })
+            timeout100Btn.addEventListener('click', (event) =>{
+                if(client.readyState() === "OPEN")
+                {
+                    sayTimeout(CHANNEL, 100, 300)
+                }
+            })
+            unbanAllBtn.addEventListener('click', (event) =>{
+                if(client.readyState() === "OPEN")
+                {
+                    const unArr = Array.from(userMap.values());
+                    unArr.forEach(un => {
+                        client.unban(CHANNEL, un)
+                    })
+                }
+            })
+            clearBanList.addEventListener('click', (event) =>{
+                if(client.readyState() === "OPEN")
+                {
+                    const unArr = Array.from(userMap.values());
+                    unArr.forEach(un => {
+                        client.unban(CHANNEL, un)
+                    })
+                }
+                userMap.clear();
+                
+                bansBox.innerHTML = "";
+            })
+            testTimeoutVolumeBtn.addEventListener('click', (event) =>{
+                if(clip !== null)
+                {
+                    if(typeof clip !== "undefined")
+                    {
+                        clip.pause();
+                        clip.currentTime = 0;
+                    }
+                }
+                clip = new Audio(groupTimeoutClip);
+                clip.volume = groupTimeoutVolume;
+                clip.play();
+            })
+            testTTSVolumeBtn.addEventListener('click', (event) =>{
+                if(hasSpeech && speechEnabled)
+                {
+                    var speechMsg = new SpeechSynthesisUtterance();
+                    speechMsg.text = "Testing TTS volume";
+                    speechMsg.volume = ttsVolume;
+                    
+                    if(ttsVoice !== "default")
+                    {
+                        for(i = 0; i < voices.length ; i++) {
+                            if(voices[i].name === ttsVoice) {
+                                speechMsg.voice = voices[i];
+                            }
+                        }
+                    }
+                    speechMsg.pitch = ttsPitch;
+                    speechMsg.rate = ttsRate;
+                    window.speechSynthesis.speak(speechMsg);
+                }
+            })
+            
+            function execMemoriam(channel)
+            {
+                const memoriam = Array.from(userMap.values());
+                var memoriamMsg = memoriamMessagePart;
+                
+                if(memoriam !== 'undefined' && memoriam.length > 0)
+                {
+                    memoriamMsg = `${memoriamMsg} ${memoriam}`;
+                    memoriamMsg = memoriamMsg.replaceAll(",", ", ");
+                    client.say(channel, memoriamMsg)
+                }
+                else
+                {
+                    client.say(channel, `${memoriamMsg} none`)
+                }
+            }
+            
+            //go through chat to bypass issues
+            function sayTimeout(channel, numberToTimeout, duration)
+            {
+                client.say(channel, `!b ${numberToTimeout} ${duration}`)
+            }
+
+            //Chatbot main logic (on message input)
+            client.on('message', (channel, tags, message, self) => {
+
+                ////custom chat log
+                console.log(message);
+                addMessage(`${(tags['user-type'] === "mod" || tags.username === channel.replace("#", ""))?'<span class="role"></span>':''}${tags.username}: ${message}`);
+
+                /*if(message.toLowerCase() === '!play') {
+                    if(rollDice(200) === 10)
+                        client.timeout(channel, tags.username, 10, `${tags.username} you let Crash man in.`)
+                }*/
+
+                ////Timeout user list
+                const deadRegex = /!memoriam/;
+                if(message.toLowerCase().match(deadRegex) && ((tags['user-type'] === "mod" && allowMods) || tags.username === channel.replace("#", "")))
+                {
+                    console.log("Memoriam request");
+                    execMemoriam(channel);
+                }
+
+                ////Random timeout request (5min)
+                const chatTimerRegex = /!b[ ]*[0-9]{1,3}[ ]*[0-9]{1,4}/;
+                const chatRegex = /!b[ ]*[0-9]{1,3}/;
+                ////Random timeout request (5min)
+                if(message.toLowerCase().match(chatTimerRegex)) {
+                    console.log("Advanced timeout request");
+                    var valuesStr = message.replace('!b').replace('undefined', '')
+                    while(valuesStr.includes('  ') === true)
+                    {
+                        valuesStr = valuesStr.replace('  ', ' ');
+                    }
+                    if(valuesStr.startsWith(' ')) {
+                        valuesStr = valuesStr.slice(1)
+                    }
+                    const values = valuesStr.split(' ');
+                    
+                    console.log(values)
+                    
+                    if((tags.username === channel.replace("#", ""))) //mods disabled, streamer only
+                    {
+                        compileUsers(channel, tags, values[0], parseInt(values[1]))
+                    }
+                    else if((tags['user-type'] === "mod")) //mods can only debug
+                    {
+                        compileUsers(channel, tags, message.replace(' ', '').replace('!b', ''), 0, true)
+                    }
+                }
+                else if(message.toLowerCase().match(chatRegex)) {
+                    console.log("Standard timeout request");
+                    if((tags.username === channel.replace("#", ""))) //mods disabled, streamer only
+                    {
+                        compileUsers(channel, tags, message.replace(' ', '').replace('!b'))
+                    }
+                    else if((tags['user-type'] === "mod")) //mods can only debug
+                    {
+                        compileUsers(channel, tags, message.replace(' ', '').replace('!b'), 0, true)
+                    }
+                }
+            });
+        });
+        </script>
+    </body>
+</html>
