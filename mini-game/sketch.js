@@ -134,12 +134,16 @@ function preload() {
 }
 
 function setup() {
+  getAudioContext().suspend();
+  let mySynth = new p5.MonoSynth();
+
+  // This won't play until the context has resumed
+  mySynth.play('A6');
+
   font = loadFont('https://bogaardryan.com/client-side-bs-app/assets/Regular.otf');
   createCanvas(400, 200);
   player1.img = loadImage('https://bogaardryan.com/client-side-bs-app/assets/ratgeRearx2.png');
   player2.img = loadImage('https://bogaardryan.com/client-side-bs-app/assets/ratgeFrontx2.png');
-
-  start("Debug_1", "kur0")
 }
 
 function shakePlayer(player, playerShake, player2 = false)
@@ -320,8 +324,32 @@ function gameOver(player)
   return true;
 }
 
+let isActive = false;
+function Enabler()
+{
+  if(mouseIsPressed === true) isActive = true;
+
+  if(isActive === false) return;
+
+  start("Debug_1", "kur0")
+
+  if (getAudioContext().state !== 'running') {
+    getAudioContext().resume();
+  }
+}
+
 function draw() {
   background(0, 255, 0);
+
+  if(isActive === false)
+  {
+    textAlign(CENTER);
+    text("Click to here activate", 200, 100);
+
+    Enabler();
+
+    return;
+  }
 
   if(ready === false) return;
   background(255, 255, 255);
