@@ -177,7 +177,6 @@ function finishFlash() {
   return false;
 }
 
-let scrollInPct = 1;
 function scrollInPlayers(){
   if(scrollInPct <= 0) return true;
   image(player1.img, player1.square.x + player1.offset.x, player1.square.y + player1.offset.y, player1.square.size, player1.square.size);
@@ -238,13 +237,13 @@ function turn(){
     {
       attack.type = "atk"
       atkSound.play();
-      attack.strength = 0.05 + Math.random() * 0.05;
+      attack.strength = 0.07 + Math.random() * 0.05;
     }
     else
     {
       attack.type = "crit"
       critSound.play();
-      attack.strength = 0.06 + Math.random() * 0.15;
+      attack.strength = 0.11 + Math.random() * 0.15;
     }
     
     if(playerTurn === true){
@@ -330,10 +329,32 @@ function gameOver(player)
     player.offset.y += deltaTime * 0.3;
     return false;
   } 
-  if(gameOverDrawTime === gameOverDrawTimer) deathLaugh.play();
+  if(gameOverDrawTime === gameOverDrawTimer)
+  {
+    deathLaugh.play();
+    if(typeof cbFnc !== "unassigned" && typeof channel !== "unassigned" && typeof client !== "unassigned" )
+    {
+      if(cbFnc != null & channel != null & client != null)
+      {
+        cbFnc(client, channel, player.name);
+      }
+    }
+  }
   drawGameOver();
   gameOverAlertScreenTimer -= deltaTime * 0.001;
-  if(gameOverAlertScreenTimer < 0) reset();
+  if(gameOverAlertScreenTimer < 0)
+  {
+    reset();
+    /*
+    if(typeof cbFnc !== "unassigned" && typeof channel !== "unassigned" && typeof client !== "unassigned" )
+    {
+        if(cbFnc != null & channel != null & client != null)
+        {
+            cbFnc(client, channel, player.name);
+        }
+    }
+    */
+  }
   return true;
 }
 
@@ -344,7 +365,8 @@ function Enabler()
 
   if(isActive === false) return;
 
-  start("Debug_1", "kur0")
+//   //start debug mode
+//   start("Debug_1", "kur0")
 
   if (getAudioContext().state !== 'running') {
     getAudioContext().resume();
@@ -357,6 +379,7 @@ function draw() {
   if(isActive === false)
   {
     textAlign(CENTER);
+    textSize(20);
     text("Click to here activate", 200, 100);
 
     Enabler();
@@ -451,10 +474,12 @@ function draw() {
   textAlign(LEFT);
   text(attackText.toUpperCase(), 10, 182);
   
+  /*
+  //debug death
   if(mouseIsPressed){
     //player1.hp = 0
     player2.hp = 0
-  }
+  }*/
 }
 
 
@@ -465,6 +490,8 @@ let attackText = "";
 
 let flashTime = 2;
 let flash = flashTime;
+
+let scrollInPct = 1;
 
 var gameOverDrawTime = 15;
 var gameOverDrawTimer = gameOverDrawTime;
@@ -480,20 +507,41 @@ let font;
 function reset()
 {
   flash = flashTime;
+  scrollInPct = 1;
   gameOverDrawTimer = gameOverDrawTime;
   gameOverTimer = gameOverTime;
   gameOverAlertScreenTimer = gameOverAlertScreenTime;
   turnTimer = 0
   playerTurn = Math.random() < 0.5;
   attackText = "";
+  theme.stop()
   ready = false;
+}
+
+var cbFnc;
+var channel;
+var client; 
+
+function startFromBot(name1, name2, clientHandle = null, channelName = null, cb = null)
+{
+    channel = channelName;
+    client = clientHandle;
+    cbFnc = cb;
+    start(name1, name2);
 }
 
 function start(name1, name2)
 {
   reset();
   ready = true;
-  theme.loop()
+  theme.loop();
   player1.name = name1
+  player1.hp = 1
+  player1.offset.x = -100;
+  player1.offset.y = 0;
+  
   player2.name = name2
+  player2.hp = 1
+  player2.offset.x = 100;
+  player2.offset.y = 0;
 }

@@ -2,6 +2,21 @@
 <html>
     <head>
         <style>
+            main {
+                padding: 2rem;
+                background-color: #0f0;
+                margin: auto;
+                width: 400px;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+            }
+        
+            canvas {
+              display: block;
+            }
+
             html, body{
                 font-family: consolas;
                 font-size: 12pt;
@@ -9,6 +24,10 @@
                 overflow-x: hidden;
                 color: wheat;
                 transition: all 1s;
+            }
+            
+            body {
+                padding: calc(200px + 3rem) 0 0 0;
             }
 
             code {
@@ -144,7 +163,7 @@
             
             .emote-pickers{
                 display: table-cell;
-                background-color: #FFF;
+                background-color: #333;
                 border-radius: 1rem;
                 padding: 2rem;
                 border: solid 1px #fff;
@@ -156,7 +175,7 @@
                 display: table;
                 left: 0;
                 right: 0;
-                top: 0;
+                top: calc(200px + 4rem);
                 bottom: 0;
                 position: absolute;
                 height: 100vh;
@@ -169,7 +188,6 @@
             #emote-group-deselector{
                 left: 0;
                 right: 0;
-                top: 0;
                 bottom: 0;
                 position: fixed;
                 height: 100vh;
@@ -231,6 +249,8 @@
         </style>
         <script src="scripts/tmi.min.js"></script> 
         <script src="scripts/jquery.min.js"></script>
+        <script src="scripts/p5.min.js"></script>
+        <script src="scripts/p5.sound.min.js"></script>
         <script type="text/javascript">
         </script>
     </head>
@@ -262,6 +282,7 @@
         <h2>Commands</h2>
         <div id="commands" class="bg-light">
             <code>
+                !battle                     | 5min ban          | Usable by streamer
                 !b [amount of users]        | 5min ban          | Usable by streamer
                 !b [amount of users] [time] | timable ban       | Usable by streamer
                 !memoriam                   | report of bans    | Usable by mods and streamer
@@ -352,6 +373,10 @@
                 <p id="info"></p>
             </div>
         </div>
+        <h2>!BATTLE</h2>
+        <main>
+        </main>
+        <script src="sketch.js"></script>
         <h2>Banned folk</h2>
         <div id="bans" class="bg-light"></div>
         <h2>Chat</h2>
@@ -679,7 +704,7 @@
                     .then(data => {
                         //get channel id
                         channelID = data.data[0].id;
-                        console.log("Channel id: " + channelID);
+                        //console.log("Channel id: " + channelID);
                         
                         //get channel emotes
                         fetch(
@@ -696,7 +721,7 @@
                         .then(response => response.json())
                         .then(data => {
                             const emoteArr = Array.from(data.data);
-                            console.log(data);
+                            //console.log(data);
                             emotePickerTwitch.innerHTML = "";
                             emoteArr.forEach(emote => {
                                 emoteMap.set(emote.name, emote.images.url_1x); //name | imgUrl
@@ -707,7 +732,7 @@
                                 emotePickerTwitch.innerHTML = "not set/found"
                             }
                             
-                            console.log(`https://api.betterttv.net/3/cached/users/twitch/${channelID}`);
+                            //console.log(`https://api.betterttv.net/3/cached/users/twitch/${channelID}`);
                             
                             //getBBTVIcons
                             fetch(
@@ -830,10 +855,10 @@
             function compileIndex(noToKill, _debug)
             {
                 noToKill--
-                console.log(noToKill)
+                //console.log(noToKill)
 
                 var numberListIndex = rollDice(numberList.length) - 1
-                console.log(numberListIndex)
+                //console.log(numberListIndex)
                 var randoNo = numberList[numberListIndex]
                 
                 if(!_debug)
@@ -848,6 +873,97 @@
 
             function updateIFrame(){
                 chatSrc.src = chatSrc.src + '';
+            }
+            
+            function execBattle(channel, _debug = false)
+            {
+                //console.log("execBattle");
+                
+                var settings = {
+                    'cache': false,
+                    "async": true,
+                    "crossDomain": true,
+                    "url": `https://tmi.vitaports.com/chatters.php?channel=${CHANNEL}`,
+                    "method": "GET",
+                    "headers": {
+                        "accept": "application/json",
+                        "Access-Control-Allow-Origin":"*"
+                    }
+                }
+
+                $.ajax(settings).done(function (response) {
+                    var data = JSON.parse(response);
+
+                    var broadcaster = data.chatters.broadcaster
+                    var viewers = data.chatters.viewers
+                    var vips = data.chatters.vips
+                    var mods = data.chatters.moderators
+
+                    //combine users and remove those already banned once
+                    var merge = []
+                    vips.forEach(vip => {
+                        if(!userMap.has(vip)) merge.push(vip)
+                    });
+                    /*mods.forEach(mod => {
+                        if(!userMap.has(mod)) merge.push(mod)
+                    });*/
+                    viewers.forEach(viewer => {
+                        if(!userMap.has(viewer)) merge.push(viewer)
+                    });
+
+                    //clean slate
+                    numberList = []
+                    mergeIndexList = []
+
+                    //add numbers to list
+                    for(var i = 0; i < merge.length; i++)
+                    {
+                        numberList.push(i);
+                    }
+                    
+                    //execute ban protocol
+                    var noToKill = 2; //weird glitch where string adds undefined infront of number
+                    
+                    if(noToKill > merge.length) noToKill = merge.length;
+                    //console.log(`number to ban ${noToKill}`);
+                    //console.log(merge);
+
+                    compileIndex(noToKill, _debug)
+                    
+                    if(!_debug)
+                    {
+                        //console.log(mergeIndexList)
+                        
+                        const newlyBannedUsernames = []
+                        
+                        var ai1 = "AI_1";
+                        var ai2 = "AI_2";
+                        
+                        if(typeof merge[mergeIndexList[0]] !== "undefined") ai1 = merge[mergeIndexList[0]];
+                        if(typeof merge[mergeIndexList[1]] !== "undefined") ai2 = merge[mergeIndexList[1]];
+                        
+                        client.say(channel, `Battle has started between ${ai1} and ${ai2}!`);
+                        
+                        /*mergeIndexList.forEach(index => {
+                            console.log(`${index}: ${merge[index]} will be banned`)
+                            userMap.set(merge[index], merge[index]);
+                            //client.timeout(channel, merge[index], _timeoutTime, `${merge[index]} ${timeoutMessagePart}`)
+                            //client.say(channel, `Battle has started between ${merge[index]} you let Crash man in. Crashge`)
+                            newlyBannedUsernames.push(merge[index])
+                        });*/
+                        startFromBot(ai1, ai2, client, channel, battleTimeoutCallback);
+                        collectBannedUsers();
+                    }
+                }).fail(() => {
+                    client.say(channel, `Failed to start a battle`);
+                });
+            }
+            
+            function battleTimeoutCallback(cl, channel, ban_name)
+            {
+                userMap.set(ban_name, ban_name);
+                cl.say(channel, `"${ban_name}" fainted and lost the battle!`);
+                cl.timeout(channel, ban_name, 300, "You are banned for 5 minutes because you lost the battle");
             }
             
             //// generate userlist to timeout/ban
@@ -898,19 +1014,19 @@
                     var noToKill = parseInt(no.replace("undefined", "")); //weird glitch where string adds undefined infront of number
                     
                     if(noToKill > merge.length) noToKill = merge.length;
-                    console.log(`number to ban ${noToKill}`);
-                    console.log(merge);
+                    //console.log(`number to ban ${noToKill}`);
+                    //console.log(merge);
 
                     compileIndex(noToKill, _debug)
 
                     if(!_debug)
                     {
-                        console.log(mergeIndexList)
+                        //console.log(mergeIndexList)
                         
                         const newlyBannedUsernames = []
 
                         mergeIndexList.forEach(index => {
-                            console.log(`${index}: ${merge[index]} will be banned`)
+                            //console.log(`${index}: ${merge[index]} will be banned`)
                             userMap.set(merge[index], merge[index]);
                             client.timeout(channel, merge[index], _timeoutTime, `${merge[index]} ${timeoutMessagePart}`)
                             //client.say(channel, `Crashge ${merge[index]} you let Crash man in. Crashge`)
@@ -944,7 +1060,7 @@
                                 //warningMessage = warningMessage.replaceAll(',', ' ');
                                 if(hasSpeech && speechEnabled)
                                 {
-                                    console.log("speech attempt");
+                                    //console.log("speech attempt");
                                     var speechMsg = new SpeechSynthesisUtterance();
                                     speechMsg.text = warningMessage;
                                     speechMsg.volume = ttsVolume;
@@ -1109,7 +1225,7 @@
             client.on('message', (channel, tags, message, self) => {
 
                 ////custom chat log
-                console.log(message);
+                //console.log(message);
                 addMessage(`${(tags['user-type'] === "mod" || tags.username === channel.replace("#", ""))?'<span class="role"></span>':''}${tags.username}: ${message}`);
 
                 /*if(message.toLowerCase() === '!play') {
@@ -1123,6 +1239,14 @@
                 {
                     console.log("Memoriam request");
                     execMemoriam(channel);
+                }
+                
+                ////Random Battle
+                const battleRegex = /!battle/;
+                if(message.toLowerCase().match(battleRegex) && ((tags['user-type'] === "mod" && allowMods) || tags.username === channel.replace("#", "")))
+                {
+                    console.log("Battle request");
+                    execBattle(channel);
                 }
 
                 ////Random timeout request (5min)
