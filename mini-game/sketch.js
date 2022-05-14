@@ -15,7 +15,7 @@ function setSquarePos(x, y, size){
 
 function createNewPlayer(playerName, squarePos, startOffset = { "x": 0, "y": 0}){
   let newPlayer = {
-    "hp": "100",
+    "hp": 1,
     "name": playerName,
     "square": squarePos,
     "offset": { x: startOffset.x, y: startOffset.y},
@@ -144,6 +144,7 @@ function setup() {
   createCanvas(400, 200);
   player1.img = loadImage('https://bogaardryan.com/client-side-bs-app/assets/ratgeRearx2.png');
   player2.img = loadImage('https://bogaardryan.com/client-side-bs-app/assets/ratgeFrontx2.png');
+  textLeading(16);
 }
 
 function shakePlayer(player, playerShake, player2 = false)
@@ -231,8 +232,9 @@ function turn(){
     {
       attack.type = "miss"
       missSound.play();
+      attack.strength = 0;
     }
-    else if(attackPct < 90)
+    else if(attackPct < 85)
     {
       attack.type = "atk"
       atkSound.play();
@@ -242,9 +244,17 @@ function turn(){
     {
       attack.type = "crit"
       critSound.play();
-      attack.strength = 0.01 + Math.random() * 0.1;
+      attack.strength = 0.06 + Math.random() * 0.15;
     }
-
+    
+    if(playerTurn === true){
+      //damage player 2
+      player1.hp -= attack.strength;
+    } else {
+      //damage player 1
+      player2.hp -= attack.strength;
+    }
+    
     turnTimer = turnTime;
     playerTurn = !playerTurn;
     
@@ -307,7 +317,10 @@ function gameOver(player)
   if(gameOverTime === gameOverTimer)
   { 
     deathSound.play();
-    attackText = `${player.name} fainted!`
+    if(attackText.includes('fainted') === false)
+    {
+      attackText += `\n${player.name} fainted!`
+    }
   }
 
   if(gameOverTimer > 0)
@@ -389,7 +402,22 @@ function draw() {
   textFont(font);
   textSize(11);
   textAlign(LEFT);
-  text(player2.name.toUpperCase(), 20, 15);
+  text(player2.name.toUpperCase(), 20, 20);
+  //p2 hp
+  var hpBar2 = player2.hp * 100
+  if(hpBar2 < 0) hpBar2 = 0;
+  fill(color(128,128,128));
+  rect(35+33, 42, 104, -9)
+  fill(color(0,0,0));
+  rect(35+35, 40, hpBar2, -5)
+  textFont(font);
+  textAlign(LEFT)
+  textSize(6);
+  text(`HP:`, 42, 40)
+  textFont(font);
+  textAlign(LEFT)
+  textSize(11);
+  text(`${Math.ceil(hpBar2)}/   100`, 42, 60)
   //p1
   stroke(1)
   rect(200, 150, 150, 1);
@@ -399,13 +427,29 @@ function draw() {
   textAlign(RIGHT);
   textSize(11);
   text(player1.name.toUpperCase(), 360, 105);
+  //p1 hp
+  var hpBar1 = player1.hp * 100
+  if(hpBar1 < 0) hpBar1 = 0;
+  fill(color(128,128,128));
+  rect(347, 127, -104, -9)
+  fill(color(0,0,0));
+  rect(345, 125, -hpBar1, -5)
+  textFont(font);
+  textAlign(LEFT)
+  textSize(6);
+  text(`HP:`, 220, 125)
+  textFont(font);
+  textAlign(RIGHT)
+  textSize(11);
+  text(`${Math.ceil(hpBar1)}/   100`, 345, 145)
   
   //attack info
+  fill(color(0,0,0));
   noStroke()
   textFont(font);
   textSize(10);
   textAlign(LEFT);
-  text(attackText.toUpperCase(), 10, 188);
+  text(attackText.toUpperCase(), 10, 182);
   
   if(mouseIsPressed){
     //player1.hp = 0
